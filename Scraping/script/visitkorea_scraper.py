@@ -1,16 +1,19 @@
+from urllib import response
 import selenium
 import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import time
-import json
+# import json
 from slack_sdk import WebClient
-from mini_pjt1.models import tour
+from slack_sdk.errors import SlackApiError
+import requests
+# from mini_pjt1.models import tour
 
 # slack 설정
-SLACK_BOT_TOKEN = "xoxb-3056784928007-3667341064962-IjRdwBMpkDCFD4pSZNLvSQ2I"
-slack_token = WebClient(token=SLACK_BOT_TOKEN)
-slack_channel = "#korea_visit_info_scraping"
+SLACK_BOT_TOKEN = "xoxb-3056784928007-3667341064962-PWILLKFdGk94c5sLWrgRhNKC"
+# slack_token = WebClient(token=SLACK_BOT_TOKEN)
+slack_channel = "korea_visit_info_scraping"
 
 # driver 오류
 options = webdriver.ChromeOptions()
@@ -24,7 +27,7 @@ driver.get(search_url)
 
 driver.find_element_by_css_selector(".search_menu li#tabView2").click()
 driver.find_element_by_xpath('//*[@id="2"]').click()
-
+time.sleep(2)
 article_list = driver.find_elements_by_css_selector(".search_body ul li div.area_txt div.tit a")
 
 ## javascript 제거하고 url 가져오기
@@ -37,6 +40,7 @@ for article in article_list:
         url_list.append(article_url)
     except : 
         continue
+
 
 # 기사 url로 들어가기
 article_url = "https://korean.visitkorea.or.kr/detail/rem_detail.do?cotid="
@@ -52,7 +56,19 @@ for article in url_list:
     likeCnt = driver.find_element_by_css_selector("#conLike").text
     shareCnt = driver.find_element_by_css_selector("#conShare").text
     readCnt = driver.find_element_by_css_selector("#conRead").text
-    tour(title = title, loc = loc, date = date, likeCnt=likeCnt, shareCnt= shareCnt,readCnt=readCnt).save()
+    
+    
+    # slack으로 메세지 보내기
+    message = f"{title}{date}"
+    def post_message(token,channel,message):
+        response = requests.post("https://slack.com/api/chat.postMessage",
+        headers={"Authorization": "Bearer "+token},
+        data={"channel": channel,"text": message}
+        )
+        print(response)
+    
+    post_message(SLACK_BOT_TOKEN,slack_channel,message)
+    # tour(title = title, loc = loc, date = date, likeCnt=likeCnt, shareCnt= shareCnt,readCnt=readCnt).save()
     try:
             cards = driver.find_elements_by_css_selector('.summary_info .card')
             i = 0

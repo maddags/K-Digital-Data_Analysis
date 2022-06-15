@@ -11,7 +11,7 @@ import requests
 # from mini_pjt1.models import tour
 
 # slack 설정
-SLACK_BOT_TOKEN = "xoxb-3056784928007-3667341064962-PWILLKFdGk94c5sLWrgRhNKC"
+SLACK_BOT_TOKEN = ""
 # slack_token = WebClient(token=SLACK_BOT_TOKEN)
 slack_channel = "korea_visit_info_scraping"
 
